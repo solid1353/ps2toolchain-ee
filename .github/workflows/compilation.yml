@@ -92,6 +92,28 @@ jobs:
       id: slug
       run: printf '%s\n' "sha8=$(printf '%s\n' ${GITHUB_SHA} | cut -c1-8)" >> $GITHUB_OUTPUT
 
+    - name: Bundle the MinGW runtime DLLs next to every executable
+      if: startsWith(matrix.os.runs-on, 'windows')
+      run: |
+        found=""
+        queue=$(find ps2dev -name '*.exe')
+        while [ -n "$queue" ]; do
+          next=""
+          for file in $queue; do
+            for name in $(objdump -p "$file" | awk '/DLL Name:/ {print $3}'); do
+              dll="/mingw32/bin/$name"
+              case " $found " in *" $dll "*) continue ;; esac
+              if [ -f "$dll" ]; then found="$found $dll"; next="$next $dll"; fi
+            done
+          done
+          queue="$next"
+        done
+        printf 'Bundling:%s\n' "$found"
+        test -n "$found"
+        for dir in $(find ps2dev -name '*.exe' -printf '%h\n' | sort -u); do
+          for dll in $found; do cp -n "$dll" "$dir/"; done
+        done
+
     - name: Compress ps2dev folder
       run: |
         tar -zcvf ps2dev-${{ matrix.os.runs-on }}.tar.gz ps2dev
