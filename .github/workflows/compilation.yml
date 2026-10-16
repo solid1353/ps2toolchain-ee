@@ -27,36 +27,6 @@ jobs:
     strategy:
       matrix:
         os: 
-          - runs-on: macos-latest
-            architecture: arm64
-            shell: bash
-            container: null
-            container-options: " "
-            macos-package-manager: brew
-          - runs-on: macos-15-intel
-            architecture: x86_64
-            shell: bash
-            container: null
-            container-options: " "
-            macos-package-manager: brew
-          - runs-on: macos-latest
-            architecture: arm64
-            shell: bash
-            container: null
-            container-options: " "
-            macos-package-manager: port
-          - runs-on: ubuntu-latest
-            architecture: x86_64
-            shell: bash
-            container: "ubuntu:20.04"
-            container-options: "--user 0"
-            macos-package-manager: null
-          - runs-on: ubuntu-24.04-arm
-            architecture: arm64
-            shell: bash
-            container: "ubuntu:20.04"
-            container-options: "--user 0"
-            macos-package-manager: null
           - runs-on: windows-latest
             architecture: x86_64
             shell: msys2
@@ -149,7 +119,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Release
-      if: startsWith(github.ref, 'refs/tags/') && github.event.repository.name == 'ps2dev' && matrix.os.macos-package-manager != 'port'
+      if: startsWith(github.ref, 'refs/tags/')
       uses: softprops/action-gh-release@v3
       with:
         files: ps2dev-${{ matrix.os.runs-on }}.tar.gz
